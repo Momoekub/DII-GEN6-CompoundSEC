@@ -1,4 +1,7 @@
 public abstract class AccessControl {
+    // abstract method สำหรับตรวจสอบการเข้าถึง
     public abstract boolean validateAccess(int cardId, int roomNumber);
-    public abstract void addRoom(int roomNumber, int cardId); // ฟังก์ชันเพิ่มห้องใหม่
+
+    // abstract method สำหรับการเพิ่มห้อง
+    public abstract void addRoom(int roomNumber, int cardId);
 }

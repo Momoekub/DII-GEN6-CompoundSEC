@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class HotelControl implements CardManagement {
+public class HotelControl extends AccessControl implements CardManagement {
 
     private Map<Integer, Integer> roomCardMap; // ใช้ HashMap เพื่อเก็บข้อมูลห้องและรหัสการ์ด
     private boolean adminAccess = false; // ตัวแปรสำหรับตรวจสอบการเข้าถึงผู้ดูแล
@@ -17,7 +17,8 @@ public class HotelControl implements CardManagement {
         roomCardMap.put(202, 126); // ห้อง 202 ใช้การ์ด ID 126
     }
 
-    // ฟังก์ชันตรวจสอบการเข้าถึงห้อง
+    // ฟังก์ชันตรวจสอบการเข้าถึงห้อง (จาก abstract AccessControl)
+    @Override
     public boolean validateAccess(int cardId, int roomNumber) {
         Integer validCardId = roomCardMap.get(roomNumber); // หา CardID ที่ตรงกับ RoomID
         if (validCardId != null && validCardId == cardId) {
@@ -26,6 +27,17 @@ public class HotelControl implements CardManagement {
         } else {
             System.out.println("Access denied to room " + roomNumber);
             return false;
+        }
+    }
+
+    // ฟังก์ชันเพิ่มห้องใหม่ (จาก abstract AccessControl)
+    @Override
+    public void addRoom(int roomNumber, int cardId) {
+        if (adminAccess) {
+            roomCardMap.put(roomNumber, cardId); // เพิ่มห้องและการ์ดเข้าไปใน HashMap
+            System.out.println("Room " + roomNumber + " added with Card ID " + cardId);
+        } else {
+            System.out.println("Admin access is required to add rooms.");
         }
     }
 
@@ -68,23 +80,14 @@ public class HotelControl implements CardManagement {
         }
     }
 
-    // ฟังก์ชันสำหรับการเพิ่มห้องใหม่
-    public void addRoom(int roomNumber, int cardId) {
-        if (adminAccess) {
-            roomCardMap.put(roomNumber, cardId); // เพิ่มห้องและการ์ดเข้าไปใน HashMap
-            System.out.println("Room " + roomNumber + " added with Card ID " + cardId);
-        } else {
-            System.out.println("Admin access is required to add rooms.");
-        }
-    }
-
     // ฟังก์ชันสำหรับการเปิดใช้งานผู้ดูแล (admin)
     public boolean authenticateAdmin(String adminPassword) {
         if ("admin111".equals(adminPassword)) {
             // ถ้ากรอกรหัส admin111 แล้ว ให้ขอรหัสยืนยัน
             System.out.println("Enter confirmation password to continue:");
-            Scanner scanner = new Scanner(System.in);  // สร้าง scanner ใหม่เพราะใช้ในที่อื่น
+            Scanner scanner = new Scanner(System.in);  // สร้าง scanner ใหม่
             String confirmPassword = scanner.nextLine();  // รับรหัสยืนยัน
+            // scanner.close();  // ลบคำสั่งนี้ออก
             if ("000".equals(confirmPassword)) {
                 adminAccess = true;
                 System.out.println("Admin authentication successful!");
@@ -98,7 +101,6 @@ public class HotelControl implements CardManagement {
             return false;
         }
     }
-
     // ฟังก์ชันเพื่อแสดงข้อมูลห้องและรหัสการ์ด
     public void showRoomDetails() {
         System.out.println("RoomID and CardID details:");

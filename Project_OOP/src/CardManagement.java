@@ -1,7 +1,7 @@
-    public interface CardManagement {
-    // ฟังก์ชันในการเปลี่ยน RoomID
+public interface CardManagement {
+    // เมธอดจาก interface
+    void addCard(int roomNumber, int cardId);
+    void updateCard(int roomNumber, int newCardId);
     void changeRoomId(int oldRoomNumber, int newRoomNumber);
-
-    // ฟังก์ชันในการเปลี่ยน CardID
     void changeCardId(int roomNumber, int newCardId);
 }

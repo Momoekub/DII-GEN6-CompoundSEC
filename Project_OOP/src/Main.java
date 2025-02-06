@@ -34,19 +34,25 @@ public class Main {
                         } else if (option.equalsIgnoreCase("C")) {
                             // เปลี่ยน CardID
                             System.out.println("Enter RoomID to change CardID:");
-                            int roomToUpdate = scanner.nextInt();
-                            System.out.println("Enter new CardID for room " + roomToUpdate + ":");
-                            int newCardId = scanner.nextInt();
-                            scanner.nextLine(); // เคลียร์ buffer
-                            accessControl.changeCardId(roomToUpdate, newCardId); // เปลี่ยนการ์ด
+                            try {
+                                int roomToUpdate = Integer.parseInt(scanner.nextLine()); // แปลง RoomID เป็นตัวเลข
+                                System.out.println("Enter new CardID for room " + roomToUpdate + ":");
+                                int newCardId = Integer.parseInt(scanner.nextLine()); // แปลง CardID เป็นตัวเลข
+                                accessControl.changeCardId(roomToUpdate, newCardId); // เปลี่ยนการ์ด
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid input. Please enter valid numeric values.");
+                            }
                         } else if (option.equalsIgnoreCase("R")) {
                             // เปลี่ยน RoomID
                             System.out.println("Enter old RoomID:");
-                            int oldRoom = scanner.nextInt();
-                            System.out.println("Enter new RoomID:");
-                            int newRoom = scanner.nextInt();
-                            scanner.nextLine(); // เคลียร์ buffer
-                            accessControl.changeRoomId(oldRoom, newRoom); // เปลี่ยนห้อง
+                            try {
+                                int oldRoom = Integer.parseInt(scanner.nextLine()); // แปลง RoomID เป็นตัวเลข
+                                System.out.println("Enter new RoomID:");
+                                int newRoom = Integer.parseInt(scanner.nextLine()); // แปลง RoomID ใหม่เป็นตัวเลข
+                                accessControl.changeRoomId(oldRoom, newRoom); // เปลี่ยนห้อง
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid input. Please enter valid numeric values.");
+                            }
                         } else if (option.equalsIgnoreCase("Esc")) {
                             // ออกจากโหมด Admin
                             System.out.println("Exiting Admin Mode...");
@@ -63,11 +69,22 @@ public class Main {
             }
 
             // แปลง RoomID เป็นตัวเลข
-            int room1 = Integer.parseInt(roomInput);
+            int room1;
+            try {
+                room1 = Integer.parseInt(roomInput); // แปลงค่า RoomID
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid RoomID. Please enter a valid numeric RoomID.");
+                continue;
+            }
 
             System.out.println("Enter your CardID:");
-            int card1 = scanner.nextInt();  // รับ CardID
-            scanner.nextLine();  // เคลียร์ buffer
+            int card1;
+            try {
+                card1 = Integer.parseInt(scanner.nextLine());  // รับ CardID
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid CardID. Please enter a valid numeric CardID.");
+                continue;
+            }
 
             // ตรวจสอบการเข้าถึงห้อง
             boolean access = accessControl.validateAccess(card1, room1);
