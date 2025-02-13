@@ -1,4 +1,4 @@
-public class Main {
+public class    Main {
     public static void main(String[] args) {
         // สร้าง Hotel และ HotelControl
         Hotel hotel = new Hotel();

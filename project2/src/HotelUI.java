@@ -32,9 +32,11 @@ public class HotelUI {
 
         JButton userLoginButton = new JButton("User Login");
         JButton adminLoginButton = new JButton("Admin Login");
+        JButton infoButton = new JButton("Room Info"); // ปุ่ม Info สำหรับแสดงสถานะห้อง
 
         homePanel.add(userLoginButton);
         homePanel.add(adminLoginButton);
+        homePanel.add(infoButton); // เพิ่มปุ่ม Info
 
         cardPanel.add(homePanel, "Home");
 
@@ -52,7 +54,28 @@ public class HotelUI {
             }
         });
 
+        // กดปุ่ม Room Info (แสดงสถานะห้อง)
+        infoButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showRoomInfoDialog();
+            }
+        });
+
         cardLayout.show(cardPanel, "Home");
+    }
+
+    private void showRoomInfoDialog() {
+        StringBuilder roomInfo = new StringBuilder();
+        for (int roomId = 101; roomId <= 105; roomId++) {
+            if (hotelControl.isRoomAvailable(roomId)) {
+                roomInfo.append("Room " + roomId + " is available.\n");
+            } else {
+                roomInfo.append("Room " + roomId + " is occupied.\n");
+            }
+        }
+
+        // แสดงข้อมูลสถานะห้องใน Dialog
+        JOptionPane.showMessageDialog(null, roomInfo.toString(), "Room Information", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showUserLogin(JPanel cardPanel, CardLayout cardLayout) {
@@ -224,6 +247,7 @@ public class HotelUI {
         JPasswordField newPasswordField = new JPasswordField(10);
 
         JButton setPasswordButton = new JButton("Set Password");
+        JButton resetPasswordButton = new JButton("Reset Booking"); // ปุ่มรีเซ็ตรหัสห้อง
         JButton backButton = new JButton("Back");
 
         changePasswordPanel.add(roomIdLabel);
@@ -231,6 +255,7 @@ public class HotelUI {
         changePasswordPanel.add(newPasswordLabel);
         changePasswordPanel.add(newPasswordField);
         changePasswordPanel.add(setPasswordButton);
+        changePasswordPanel.add(resetPasswordButton); // เพิ่มปุ่มรีเซ็ตรหัส
         changePasswordPanel.add(backButton);
 
         cardPanel.add(changePasswordPanel, "Change Room Password");
@@ -251,12 +276,37 @@ public class HotelUI {
                 boolean success = hotelControl.setRoomPassword(roomId, newPassword);
                 if (success) {
                     JOptionPane.showMessageDialog(null, "Password for Room " + roomId + " has been updated.");
+                    // เรียกแสดงข้อมูลห้องใหม่หลังจากเปลี่ยนรหัส
+                    showRoomInfo(cardPanel, cardLayout);
                 } else {
                     JOptionPane.showMessageDialog(null, "Room not found.");
                 }
             }
         });
 
+        // เมื่อคลิกปุ่ม Reset Booking (รีเซ็ตรหัสและทำให้ห้องกลับไปว่าง)
+        resetPasswordButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int roomId = Integer.parseInt(roomIdField.getText());
+                String newPassword = new String(newPasswordField.getPassword());
+
+                // ตรวจสอบว่าผู้ใช้พิมพ์ "reset" ในช่องรหัสผ่าน
+                if (newPassword.equals("reset")) {
+                    boolean success = hotelControl.setRoomPassword(roomId, null); // รีเซ็ตรหัสผ่าน (null หมายถึงห้องว่าง)
+                    if (success) {
+                        JOptionPane.showMessageDialog(null, "Room " + roomId + " has been reset and is now available.");
+                        // เรียกแสดงข้อมูลห้องใหม่หลังจากรีเซ็ต
+                        showRoomInfo(cardPanel, cardLayout);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Room not found.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "To reset, please enter 'reset' as the password.");
+                }
+            }
+        });
+
         cardLayout.show(cardPanel, "Change Room Password");
     }
+
 }

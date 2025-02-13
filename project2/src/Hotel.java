@@ -15,9 +15,14 @@ public class Hotel implements RoomManagement {
 
     @Override
     public boolean setRoomPassword(int roomId, String password) {
-        roomPasswords.put(roomId, password);
+        if (password == null) {
+            roomPasswords.remove(roomId); // ลบห้องออกเพื่อให้ห้องว่าง
+            return true;
+        }
+        roomPasswords.put(roomId, password); // อัปเดตรหัสห้อง
         return true;
     }
+
 
     @Override
     public boolean isRoomAvailable(int roomId) {
