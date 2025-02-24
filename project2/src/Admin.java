@@ -8,4 +8,8 @@ public class Admin extends AbstractUser {
         // ฟังก์ชันพิเศษสำหรับแอดมิน เช่น เปลี่ยนรหัสผ่านห้อง
         return true;
     }
+
+    public boolean loginAsAdmin(String adminId, String adminPassword) {
+        return "admin123".equals(adminId) && "adminpassword".equals(adminPassword);
+    }
 }

@@ -8,11 +8,8 @@ public class HotelUI {
 
     public HotelUI(HotelControl hotelControl) {
         this.hotelControl = hotelControl;
-
     }
 
-
-    // ฟังก์ชันเริ่มต้นสำหรับ User Mode
     // ฟังก์ชันเริ่มต้นสำหรับ User Mode
     public void startUserMode() {
         JFrame frame = new JFrame("User Mode - Hotel Management System");
@@ -48,7 +45,6 @@ public class HotelUI {
     }
 
     // ฟังก์ชันเริ่มต้นสำหรับ Admin Mode
-    // ฟังก์ชันเริ่มต้นสำหรับ Admin Mode
     public void startAdminMode() {
         JFrame frame = new JFrame("Admin Mode - Hotel Management System");
         frame.setSize(500, 400);
@@ -59,7 +55,7 @@ public class HotelUI {
         JPanel cardPanel = new JPanel(cardLayout);
 
         // หน้า Home สำหรับ Admin
-        showAdminHomeScreen(cardPanel, cardLayout);
+        showAdminLogin(cardPanel, cardLayout);
 
         // เพิ่มปุ่มกลับไปหน้า Login
         JButton backButton = new JButton("Back to Login");
@@ -112,28 +108,6 @@ public class HotelUI {
         cardLayout.show(cardPanel, "User Home");
     }
 
-    // หน้า Home สำหรับ Admin
-    private void showAdminHomeScreen(JPanel cardPanel, CardLayout cardLayout) {
-        JPanel homePanel = new JPanel();
-        homePanel.setLayout(new FlowLayout());
-
-        JButton adminLoginButton = new JButton("Admin Login");
-
-        homePanel.add(adminLoginButton);
-
-        cardPanel.add(homePanel, "Admin Home");
-
-        // เมื่อกดปุ่ม Admin Login
-        adminLoginButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showAdminLogin(cardPanel, cardLayout);
-            }
-        });
-
-        cardLayout.show(cardPanel, "Admin Home");
-    }
-
-    // หน้า User Login
     // หน้า User Login
     private void showUserLogin(JPanel cardPanel, CardLayout cardLayout) {
         JPanel userLoginPanel = new JPanel();
@@ -184,180 +158,153 @@ public class HotelUI {
         cardLayout.show(cardPanel, "User Login");
     }
 
-
     // แสดงข้อมูลสถานะห้องใน Dialog สำหรับ User
     private void showRoomInfoDialog() {
         StringBuilder roomInfo = new StringBuilder();
-        for (int roomId = 101; roomId <= 105; roomId++) {
-            if (hotelControl.isRoomAvailable(roomId)) {
-                roomInfo.append("Room " + roomId + " is available.\n");
-            } else {
-                roomInfo.append("Room " + roomId + " is occupied.\n");
-            }
+
+        roomInfo.append("Floor 1\n");
+        for (int roomId = 101; roomId <= 110; roomId++) {
+            roomInfo.append("Room ").append(roomId).append(" is ");
+            roomInfo.append(hotelControl.isRoomAvailable(roomId) ? "available.\n" : "occupied.\n");
         }
 
-        // แสดงข้อมูลสถานะห้องใน Dialog
+        roomInfo.append("\nFloor 2\n");
+        for (int roomId = 201; roomId <= 210; roomId++) {
+            roomInfo.append("Room ").append(roomId).append(" is ");
+            roomInfo.append(hotelControl.isRoomAvailable(roomId) ? "available.\n" : "occupied.\n");
+        }
+
+        roomInfo.append("\nFloor 3\n");
+        for (int roomId = 301; roomId <= 310; roomId++) {
+            roomInfo.append("Room ").append(roomId).append(" is ");
+            roomInfo.append(hotelControl.isRoomAvailable(roomId) ? "available.\n" : "occupied.\n");
+        }
+
         JOptionPane.showMessageDialog(null, roomInfo.toString(), "Room Information", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // หน้า Admin Login
     // หน้า Admin Login
     private void showAdminLogin(JPanel cardPanel, CardLayout cardLayout) {
         JPanel adminLoginPanel = new JPanel();
         adminLoginPanel.setLayout(new FlowLayout());
 
-        JLabel adminIDLabel = new JLabel("Admin ID:");
-        JTextField adminIDField = new JTextField(15);
-        JLabel passwordLabel = new JLabel("Admin Password:");
-        JPasswordField passwordField = new JPasswordField(15);
+        JLabel adminIdLabel = new JLabel("Admin ID:");
+        JTextField adminIdField = new JTextField(15);
+        JLabel adminPasswordLabel = new JLabel("Admin Password:");
+        JPasswordField adminPasswordField = new JPasswordField(15);
         JButton loginButton = new JButton("Login");
-        JButton backButton = new JButton("Back");
+        JButton resetButton = new JButton("Reset");
 
-        adminLoginPanel.add(adminIDLabel);
-        adminLoginPanel.add(adminIDField);
-        adminLoginPanel.add(passwordLabel);
-        adminLoginPanel.add(passwordField);
+        adminLoginPanel.add(adminIdLabel);
+        adminLoginPanel.add(adminIdField);
+        adminLoginPanel.add(adminPasswordLabel);
+        adminLoginPanel.add(adminPasswordField);
         adminLoginPanel.add(loginButton);
-        adminLoginPanel.add(backButton);
+        adminLoginPanel.add(resetButton);
 
         cardPanel.add(adminLoginPanel, "Admin Login");
 
+        // เมื่อกดปุ่ม Login
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String adminID = adminIDField.getText();
-                String password = new String(passwordField.getPassword());
+                String adminId = adminIdField.getText();
+                String adminPassword = new String(adminPasswordField.getPassword());
 
-                if (adminID.equals("admin123") && password.equals("adminpassword")) {
-                    JOptionPane.showMessageDialog(null, "Admin Login Successful.");
-                    showAdminDashboard(cardPanel, cardLayout); // พาไปหน้า Admin Dashboard
+                Admin admin = new Admin(hotelControl.getHotel());
+
+                if (admin.loginAsAdmin(adminId, adminPassword)) {
+                    JOptionPane.showMessageDialog(null, "Admin Login Successful!");
+                    showAdminDashboard(cardPanel, cardLayout); // ไปที่หน้าแดชบอร์ดของ Admin
                 } else {
-                    JOptionPane.showMessageDialog(null, "Invalid Admin Credentials. Please try again.");
+                    JOptionPane.showMessageDialog(null, "Invalid Admin ID or Password. Please try again.");
                 }
             }
         });
 
-        // ปุ่มย้อนกลับ
-        backButton.addActionListener(new ActionListener() {
+        // เมื่อกดปุ่ม Reset
+        resetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Admin Home"); // กลับไปที่หน้า Home ของ Admin
+                adminIdField.setText("");
+                adminPasswordField.setText("");
             }
         });
 
         cardLayout.show(cardPanel, "Admin Login");
     }
 
-    // หน้า Admin Dashboard
     private void showAdminDashboard(JPanel cardPanel, CardLayout cardLayout) {
         JPanel adminDashboardPanel = new JPanel();
         adminDashboardPanel.setLayout(new FlowLayout());
 
-        JButton showRoomButton = new JButton("Show Room Info");
-        JButton changeRoomPasswordButton = new JButton("Change Room Password");
-        JButton backButton = new JButton("Back");
+        JLabel hotelUserNameLabel = new JLabel("Hotel User Name:");
+        JTextField hotelUserNameField = new JTextField(15);
+        JLabel roomIdLabel = new JLabel("Room ID:");
+        JTextField roomIdField = new JTextField(10);
+        JLabel roomPasswordLabel = new JLabel("Room Password:");
+        JPasswordField roomPasswordField = new JPasswordField(10);
+        JButton setPasswordButton = new JButton("Set Password");
+        JButton showRoomInfoButton = new JButton("Show Room Info");
 
-        adminDashboardPanel.add(showRoomButton);
-        adminDashboardPanel.add(changeRoomPasswordButton);
-        adminDashboardPanel.add(backButton);
+        adminDashboardPanel.add(hotelUserNameLabel);
+        adminDashboardPanel.add(hotelUserNameField);
+        adminDashboardPanel.add(roomIdLabel);
+        adminDashboardPanel.add(roomIdField);
+        adminDashboardPanel.add(roomPasswordLabel);
+        adminDashboardPanel.add(roomPasswordField);
+        adminDashboardPanel.add(setPasswordButton);
+        adminDashboardPanel.add(showRoomInfoButton);
 
         cardPanel.add(adminDashboardPanel, "Admin Dashboard");
 
-        // เมื่อคลิกปุ่ม Show Room Info
-        showRoomButton.addActionListener(new ActionListener() {
+        // เมื่อกดปุ่ม Set Password
+        setPasswordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                showRoomInfo(cardPanel, cardLayout);
+                try {
+                    int roomId = Integer.parseInt(roomIdField.getText());
+                    String roomPassword = new String(roomPasswordField.getPassword());
+                    String userName = hotelUserNameField.getText();
+                    if (hotelControl.setRoomPassword(roomId, roomPassword, userName)) {
+                        JOptionPane.showMessageDialog(null, "Password for room " + roomId + " has been set successfully.");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Room " + roomId + " not found.");
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid Room ID.");
+                }
             }
         });
 
-        // เมื่อคลิกปุ่ม Change Room Password
-        changeRoomPasswordButton.addActionListener(new ActionListener() {
+        // เมื่อกดปุ่ม Show Room Info
+        showRoomInfoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                changeRoomPassword(cardPanel, cardLayout);
-            }
-        });
-
-        // ปุ่มย้อนกลับ
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Admin Login");
+                showAdminRoomInfoDialog();
             }
         });
 
         cardLayout.show(cardPanel, "Admin Dashboard");
     }
 
-    // แสดงข้อมูลสถานะห้องใน Admin Dashboard
-    private void showRoomInfo(JPanel cardPanel, CardLayout cardLayout) {
-        JPanel showRoomPanel = new JPanel();
-        showRoomPanel.setLayout(new FlowLayout());
-
+    private void showAdminRoomInfoDialog() {
         StringBuilder roomInfo = new StringBuilder();
-        for (int roomId = 101; roomId <= 105; roomId++) {
-            if (hotelControl.isRoomAvailable(roomId)) {
-                roomInfo.append("Room " + roomId + " is available.\n");
-            } else {
-                roomInfo.append("Room " + roomId + " is occupied.\n");
+
+        Hotel hotel = hotelControl.getHotel();
+
+        for (int floor = 1; floor <= 3; floor++) {
+            roomInfo.append("Floor ").append(floor).append("\n");
+            for (int roomId = (floor - 1) * 100 + 101; roomId <= (floor - 1) * 100 + 110; roomId++) {
+                Room room = hotel.getRooms().get(roomId);
+                if (room != null) {
+                    roomInfo.append("Room ").append(roomId).append(" is ");
+                    if (room.isAvailable()) {
+                        roomInfo.append("available.\n");
+                    } else {
+                        roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
+                    }
+                }
             }
+            roomInfo.append("\n");
         }
 
-        JTextArea roomInfoTextArea = new JTextArea(10, 30);
-        roomInfoTextArea.setText(roomInfo.toString());
-        roomInfoTextArea.setEditable(false);
-
-        JButton backButton = new JButton("Back");
-
-        showRoomPanel.add(new JScrollPane(roomInfoTextArea));
-        showRoomPanel.add(backButton);
-
-        cardPanel.add(showRoomPanel, "Show Room Info");
-
-        // ปุ่มย้อนกลับ
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Admin Dashboard");
-            }
-        });
-
-        cardLayout.show(cardPanel, "Show Room Info");
-    }
-
-    // ฟังก์ชันสำหรับการเปลี่ยนรหัสห้อง
-    private void changeRoomPassword(JPanel cardPanel, CardLayout cardLayout) {
-        JPanel changePasswordPanel = new JPanel();
-        changePasswordPanel.setLayout(new FlowLayout());
-
-        JLabel roomIdLabel = new JLabel("Room ID:");
-        JTextField roomIdField = new JTextField(10);
-        JLabel newPasswordLabel = new JLabel("New Password:");
-        JPasswordField newPasswordField = new JPasswordField(10);
-        JButton changeButton = new JButton("Change Password");
-        JButton backButton = new JButton("Back");
-
-        changePasswordPanel.add(roomIdLabel);
-        changePasswordPanel.add(roomIdField);
-        changePasswordPanel.add(newPasswordLabel);
-        changePasswordPanel.add(newPasswordField);
-        changePasswordPanel.add(changeButton);
-        changePasswordPanel.add(backButton);
-
-        cardPanel.add(changePasswordPanel, "Change Room Password");
-
-        changeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                int roomId = Integer.parseInt(roomIdField.getText());
-                String newPassword = new String(newPasswordField.getPassword());
-
-                hotelControl.changeRoomPassword(roomId, newPassword);
-                JOptionPane.showMessageDialog(null, "Password changed successfully.");
-            }
-        });
-
-        // ปุ่มย้อนกลับ
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "Admin Dashboard");
-            }
-        });
-
-        cardLayout.show(cardPanel, "Change Room Password");
+        JOptionPane.showMessageDialog(null, roomInfo.toString(), "Room Information", JOptionPane.INFORMATION_MESSAGE);
     }
 }
