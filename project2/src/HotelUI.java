@@ -2,43 +2,34 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HotelUI {
     private HotelControl hotelControl;
+    private AccessControlSystem accessControlSystem;
+    // Map to store the registration and reset times
+    private Map<Integer, String> registrationTimes = new HashMap<>();
+    private Map<Integer, String> resetTimes = new HashMap<>();
 
-    public HotelUI(HotelControl hotelControl) {
+    public HotelUI(HotelControl hotelControl, AccessControlSystem accessControlSystem) {
         this.hotelControl = hotelControl;
+        this.accessControlSystem = accessControlSystem;
     }
 
     // ฟังก์ชันเริ่มต้นสำหรับ User Mode
     public void startUserMode() {
         JFrame frame = new JFrame("User Mode - Hotel Management System");
         frame.setSize(500, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // ใช้ CardLayout สำหรับสลับระหว่างหน้า
         CardLayout cardLayout = new CardLayout();
         JPanel cardPanel = new JPanel(cardLayout);
 
         // หน้า Home สำหรับ User
-        showUserHomeScreen(cardPanel, cardLayout);
-
-        // เพิ่มปุ่มกลับไปหน้า Login
-        JButton backButton = new JButton("Back to Login");
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // กลับไปหน้า Login
-                String mode = JOptionPane.showInputDialog("Enter 'user' for User Mode or 'admin' for Admin Mode:");
-                if ("user".equalsIgnoreCase(mode)) {
-                    startUserMode();
-                } else if ("admin".equalsIgnoreCase(mode)) {
-                    startAdminMode();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid mode. Please enter 'user' or 'admin'.");
-                }
-            }
-        });
-        frame.add(backButton, BorderLayout.SOUTH); // เพิ่มปุ่มที่ด้านล่างของ frame
+        showUserHomeScreen(cardPanel, cardLayout, frame);
 
         frame.add(cardPanel);
         frame.setVisible(true);
@@ -48,38 +39,21 @@ public class HotelUI {
     public void startAdminMode() {
         JFrame frame = new JFrame("Admin Mode - Hotel Management System");
         frame.setSize(500, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // ใช้ CardLayout สำหรับสลับระหว่างหน้า
         CardLayout cardLayout = new CardLayout();
         JPanel cardPanel = new JPanel(cardLayout);
 
         // หน้า Home สำหรับ Admin
-        showAdminLogin(cardPanel, cardLayout);
-
-        // เพิ่มปุ่มกลับไปหน้า Login
-        JButton backButton = new JButton("Back to Login");
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // กลับไปหน้า Login
-                String mode = JOptionPane.showInputDialog("Enter 'user' for User Mode or 'admin' for Admin Mode:");
-                if ("user".equalsIgnoreCase(mode)) {
-                    startUserMode();
-                } else if ("admin".equalsIgnoreCase(mode)) {
-                    startAdminMode();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid mode. Please enter 'user' or 'admin'.");
-                }
-            }
-        });
-        frame.add(backButton, BorderLayout.SOUTH); // เพิ่มปุ่มที่ด้านล่างของ frame
+        showAdminLogin(cardPanel, cardLayout, frame);
 
         frame.add(cardPanel);
         frame.setVisible(true);
     }
 
     // หน้า Home สำหรับ User
-    private void showUserHomeScreen(JPanel cardPanel, CardLayout cardLayout) {
+    private void showUserHomeScreen(JPanel cardPanel, CardLayout cardLayout, JFrame frame) {
         JPanel homePanel = new JPanel();
         homePanel.setLayout(new FlowLayout());
 
@@ -94,7 +68,7 @@ public class HotelUI {
         // เมื่อกดปุ่ม User Login
         userLoginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                showUserLogin(cardPanel, cardLayout);
+                showUserLogin(cardPanel, cardLayout, frame);
             }
         });
 
@@ -109,7 +83,7 @@ public class HotelUI {
     }
 
     // หน้า User Login
-    private void showUserLogin(JPanel cardPanel, CardLayout cardLayout) {
+    private void showUserLogin(JPanel cardPanel, CardLayout cardLayout, JFrame frame) {
         JPanel userLoginPanel = new JPanel();
         userLoginPanel.setLayout(new FlowLayout());
 
@@ -151,7 +125,8 @@ public class HotelUI {
         // ปุ่มย้อนกลับ
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cardPanel, "User Home"); // กลับไปที่หน้า Home ของ User
+                frame.dispose(); // ปิดหน้าต่างปัจจุบัน
+                startLoginScreen(); // เปิดหน้าต่าง Login ใหม่
             }
         });
 
@@ -160,31 +135,49 @@ public class HotelUI {
 
     // แสดงข้อมูลสถานะห้องใน Dialog สำหรับ User
     private void showRoomInfoDialog() {
-        StringBuilder roomInfo = new StringBuilder();
+        String[] floors = {"Floor 1", "Floor 2", "Floor 3"};
+        String selectedFloor = (String) JOptionPane.showInputDialog(null, "Select a floor:",
+                "Floor Selection", JOptionPane.QUESTION_MESSAGE, null, floors, floors[0]);
 
-        roomInfo.append("Floor 1\n");
-        for (int roomId = 101; roomId <= 110; roomId++) {
-            roomInfo.append("Room ").append(roomId).append(" is ");
-            roomInfo.append(hotelControl.isRoomAvailable(roomId) ? "available.\n" : "occupied.\n");
+        if (selectedFloor != null) {
+            StringBuilder roomInfo = new StringBuilder();
+
+            // เลือก Floor ที่ผู้ใช้เลือก
+            if (selectedFloor.equals("Floor 1")) {
+                roomInfo.append("\nFloor 1\n");
+                for (int roomId = 101; roomId <= 110; roomId++) {
+                    if (hotelControl.isRoomAvailable(roomId)) {
+                        roomInfo.append("Room " + roomId + " is available.\n");
+                    } else {
+                        roomInfo.append("Room " + roomId + " is occupied.\n");
+                    }
+                }
+            } else if (selectedFloor.equals("Floor 2")) {
+                roomInfo.append("\nFloor 2\n");
+                for (int roomId = 201; roomId <= 210; roomId++) {
+                    if (hotelControl.isRoomAvailable(roomId)) {
+                        roomInfo.append("Room " + roomId + " is available.\n");
+                    } else {
+                        roomInfo.append("Room " + roomId + " is occupied.\n");
+                    }
+                }
+            } else if (selectedFloor.equals("Floor 3")) {
+                roomInfo.append("\nFloor 3\n");
+                for (int roomId = 301; roomId <= 310; roomId++) {
+                    if (hotelControl.isRoomAvailable(roomId)) {
+                        roomInfo.append("Room " + roomId + " is available.\n");
+                    } else {
+                        roomInfo.append("Room " + roomId + " is occupied.\n");
+                    }
+                }
+            }
+
+            JOptionPane.showMessageDialog(null, roomInfo.toString(), "Room Information", JOptionPane.INFORMATION_MESSAGE);
         }
-
-        roomInfo.append("\nFloor 2\n");
-        for (int roomId = 201; roomId <= 210; roomId++) {
-            roomInfo.append("Room ").append(roomId).append(" is ");
-            roomInfo.append(hotelControl.isRoomAvailable(roomId) ? "available.\n" : "occupied.\n");
-        }
-
-        roomInfo.append("\nFloor 3\n");
-        for (int roomId = 301; roomId <= 310; roomId++) {
-            roomInfo.append("Room ").append(roomId).append(" is ");
-            roomInfo.append(hotelControl.isRoomAvailable(roomId) ? "available.\n" : "occupied.\n");
-        }
-
-        JOptionPane.showMessageDialog(null, roomInfo.toString(), "Room Information", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // หน้า Admin Login
-    private void showAdminLogin(JPanel cardPanel, CardLayout cardLayout) {
+    private void showAdminLogin(JPanel cardPanel, CardLayout cardLayout, JFrame frame) {
         JPanel adminLoginPanel = new JPanel();
         adminLoginPanel.setLayout(new FlowLayout());
 
@@ -214,7 +207,7 @@ public class HotelUI {
 
                 if (admin.loginAsAdmin(adminId, adminPassword)) {
                     JOptionPane.showMessageDialog(null, "Admin Login Successful!");
-                    showAdminDashboard(cardPanel, cardLayout); // ไปที่หน้าแดชบอร์ดของ Admin
+                    showAdminDashboard(cardPanel, cardLayout, frame); // ไปที่หน้าแดชบอร์ดของ Admin
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid Admin ID or Password. Please try again.");
                 }
@@ -232,7 +225,7 @@ public class HotelUI {
         cardLayout.show(cardPanel, "Admin Login");
     }
 
-    private void showAdminDashboard(JPanel cardPanel, CardLayout cardLayout) {
+    private void showAdminDashboard(JPanel cardPanel, CardLayout cardLayout, JFrame frame) {
         JPanel adminDashboardPanel = new JPanel();
         adminDashboardPanel.setLayout(new FlowLayout());
 
@@ -244,6 +237,9 @@ public class HotelUI {
         JPasswordField roomPasswordField = new JPasswordField(10);
         JButton setPasswordButton = new JButton("Set Password");
         JButton showRoomInfoButton = new JButton("Show Room Info");
+        JButton viewTimesButton = new JButton("View Times");
+        JButton advancedAdminButton = new JButton("Advanced Admin");
+        JButton backButton = new JButton("Back");
 
         adminDashboardPanel.add(hotelUserNameLabel);
         adminDashboardPanel.add(hotelUserNameField);
@@ -253,6 +249,9 @@ public class HotelUI {
         adminDashboardPanel.add(roomPasswordField);
         adminDashboardPanel.add(setPasswordButton);
         adminDashboardPanel.add(showRoomInfoButton);
+        adminDashboardPanel.add(viewTimesButton);
+        adminDashboardPanel.add(advancedAdminButton);
+        adminDashboardPanel.add(backButton);
 
         cardPanel.add(adminDashboardPanel, "Admin Dashboard");
 
@@ -263,7 +262,16 @@ public class HotelUI {
                     int roomId = Integer.parseInt(roomIdField.getText());
                     String roomPassword = new String(roomPasswordField.getPassword());
                     String userName = hotelUserNameField.getText();
-                    if (hotelControl.setRoomPassword(roomId, roomPassword, userName)) {
+                    if (roomPassword.equals("reset")) {
+                        hotelControl.resetRoomAvailability(roomId);
+                        String resetTime = java.time.LocalDateTime.now().toString();
+                        resetTimes.put(roomId, resetTime);
+                        JOptionPane.showMessageDialog(null, "Room " + roomId + " has been reset to available.");
+                    } else if (roomPassword.isEmpty() || userName.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Please enter both Room Password and Hotel User Name.");
+                    } else if (hotelControl.setRoomPassword(roomId, roomPassword, userName)) {
+                        String registrationTime = java.time.LocalDateTime.now().toString();
+                        registrationTimes.put(roomId, registrationTime);
                         JOptionPane.showMessageDialog(null, "Password for room " + roomId + " has been set successfully.");
                     } else {
                         JOptionPane.showMessageDialog(null, "Room " + roomId + " not found.");
@@ -281,6 +289,33 @@ public class HotelUI {
             }
         });
 
+        // เมื่อกดปุ่ม View Times
+        viewTimesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showTimesDialog();
+            }
+        });
+
+        // เมื่อกดปุ่ม Advanced Admin
+        advancedAdminButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String adminCode = JOptionPane.showInputDialog("Enter the admin code:");
+                if ("123".equals(adminCode)) {
+                    showAdvancedAdminDialog();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Invalid admin code.");
+                }
+            }
+        });
+
+        // ปุ่มย้อนกลับ
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); // ปิดหน้าต่างปัจจุบัน
+                startLoginScreen(); // เปิดหน้าต่าง Login ใหม่
+            }
+        });
+
         cardLayout.show(cardPanel, "Admin Dashboard");
     }
 
@@ -289,22 +324,104 @@ public class HotelUI {
 
         Hotel hotel = hotelControl.getHotel();
 
-        for (int floor = 1; floor <= 3; floor++) {
-            roomInfo.append("Floor ").append(floor).append("\n");
-            for (int roomId = (floor - 1) * 100 + 101; roomId <= (floor - 1) * 100 + 110; roomId++) {
-                Room room = hotel.getRooms().get(roomId);
-                if (room != null) {
-                    roomInfo.append("Room ").append(roomId).append(" is ");
-                    if (room.isAvailable()) {
-                        roomInfo.append("available.\n");
-                    } else {
-                        roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
-                    }
+        // รวมข้อมูลของทุกชั้น
+        roomInfo.append("Floor 1\n");
+        for (int roomId = 101; roomId <= 110; roomId++) {
+            Room room = hotel.getRooms().get(roomId);
+            if (room != null) {
+                roomInfo.append("Room ").append(roomId).append(" is ");
+                if (room.isAvailable()) {
+                    roomInfo.append("available.\n");
+                } else {
+                    roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
                 }
             }
-            roomInfo.append("\n");
+        }
+
+        roomInfo.append("\nFloor 2\n");
+        for (int roomId = 201; roomId <= 210; roomId++) {
+            Room room = hotel.getRooms().get(roomId);
+            if (room != null) {
+                roomInfo.append("Room ").append(roomId).append(" is ");
+                if (room.isAvailable()) {
+                    roomInfo.append("available.\n");
+                } else {
+                    roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
+                }
+            }
+        }
+
+        roomInfo.append("\nFloor 3\n");
+        for (int roomId = 301; roomId <= 310; roomId++) {
+            Room room = hotel.getRooms().get(roomId);
+            if (room != null) {
+                roomInfo.append("Room ").append(roomId).append(" is ");
+                if (room.isAvailable()) {
+                    roomInfo.append("available.\n");
+                } else {
+                    roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
+                }
+            }
         }
 
         JOptionPane.showMessageDialog(null, roomInfo.toString(), "Room Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showTimesDialog() {
+        StringBuilder timesInfo = new StringBuilder();
+        timesInfo.append("Registration and Reset Times\n");
+
+        for (Map.Entry<Integer, String> entry : registrationTimes.entrySet()) {
+            int roomId = entry.getKey();
+            String registrationTime = entry.getValue();
+            String resetTime = resetTimes.get(roomId);
+            timesInfo.append("Room ").append(roomId).append(":\n");
+            timesInfo.append("Registration Time: ").append(registrationTime).append("\n");
+            if (resetTime != null) {
+                timesInfo.append("Reset Time: ").append(resetTime).append("\n");
+            } else {
+                timesInfo.append("Reset Time: Not yet reset\n");
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, timesInfo.toString(), "Times Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showAdvancedAdminDialog() {
+        JOptionPane.showMessageDialog(null, "Welcome to the advanced admin level!", "Advanced Admin", JOptionPane.INFORMATION_MESSAGE);
+        // Here, you can add additional functionalities and dialogs for the advanced admin level
+    }
+
+    // ฟังก์ชันเริ่มต้นสำหรับ Login Screen
+    public void startLoginScreen() {
+        JFrame frame = new JFrame("Hotel Management System");
+        frame.setSize(500, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Prompt user for mode selection (User or Admin)
+        String mode;
+        while (true) {
+            mode = JOptionPane.showInputDialog(frame, "Enter 'user' for User Mode or 'admin' for Admin Mode:");
+
+            // If the user clicks "Cancel" or closes the window
+            if (mode == null) {
+                JOptionPane.showMessageDialog(null, "Program exited.", "Goodbye", JOptionPane.INFORMATION_MESSAGE);
+                System.exit(0); // Exit the program
+            }
+
+            mode = mode.trim().toLowerCase(); // Trim spaces and convert to lowercase
+
+            if (mode.equals("user")) {
+                HotelUI hotelUI = new HotelUI(hotelControl, accessControlSystem);
+                hotelUI.startUserMode(); // Start User Mode
+                break;
+            } else if (mode.equals("admin")) {
+                HotelUI hotelUI = new HotelUI(hotelControl, accessControlSystem);
+                hotelUI.startAdminMode(); // Start Admin Mode
+                break;
+            } else {
+                JOptionPane.showMessageDialog(null, "Invalid mode! Please enter 'user' or 'admin'.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 }

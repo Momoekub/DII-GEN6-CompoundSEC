@@ -1,56 +1,33 @@
-import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
 public class Main {
     public static void main(String[] args) {
-        // Create Hotel and HotelControl instances
         Hotel hotel = new Hotel();
         HotelControl hotelControl = new HotelControl(hotel);
+        AccessControlSystem accessControlSystem = new AccessControlSystem(); // Create an instance of AccessControlSystem
 
-        // Create JFrame window
-        JFrame frame = new JFrame("Hotel Management System");
-
-        // Add window closing event listener
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                int option = JOptionPane.showConfirmDialog(frame,
-                        "Do you really want to exit?",
-                        "Exit Confirmation",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-
-                if (option == JOptionPane.YES_OPTION) {
-                    System.exit(0); // Exit the program
-                }
-            }
-        });
-
-        // Prompt user for mode selection (User or Admin)
-        String mode;
-        while (true) {
-            mode = JOptionPane.showInputDialog("Enter 'user' for User Mode or 'admin' for Admin Mode:");
-
-            // If the user clicks "Cancel" or closes the window
-            if (mode == null) {
-                JOptionPane.showMessageDialog(null, "Program exited.", "Goodbye", JOptionPane.INFORMATION_MESSAGE);
-                System.exit(0); // Exit the program
-            }
-
-            mode = mode.trim().toLowerCase(); // Trim spaces and convert to lowercase
-
-            if (mode.equals("user")) {
-                HotelUI hotelUI = new HotelUI(hotelControl);
-                hotelUI.startUserMode(); // Start User Mode
-                break;
-            } else if (mode.equals("admin")) {
-                HotelUI hotelUI = new HotelUI(hotelControl);
-                hotelUI.startAdminMode(); // Start Admin Mode
-                break;
-            } else {
-                JOptionPane.showMessageDialog(null, "Invalid mode! Please enter 'user' or 'admin'.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
+        HotelUI hotelUI = new HotelUI(hotelControl, accessControlSystem); // Pass both HotelControl and AccessControlSystem
+        hotelUI.startLoginScreen();
     }
 }
+//Main.java
+//คลาสนี้เป็นจุดเริ่มต้นของแอปพลิเคชัน มันสร้างคอมโพเนนต์ที่จำเป็นและเริ่มหน้าจอล็อกอิน
+//
+//Hotel.java
+//คลาสนี้แทนโรงแรมและมีการเก็บรวบรวมห้องต่างๆ มันจัดการสถานะของแต่ละห้อง
+//
+//Room.java
+//คลาสนี้แทนห้องแต่ละห้องในโรงแรม มันเก็บข้อมูลเกี่ยวกับการว่างของห้องและผู้ใช้ที่ถูกกำหนดให้กับห้องนั้น
+//
+//HotelControl.java
+//คลาสนี้มีตรรกะสำหรับการจัดการโรงแรม รวมถึงการตรวจสอบห้อง การตั้งรหัสผ่าน และการรีเซ็ตการว่างของห้อง
+//
+//AccessCard.java
+//คลาสนี้แทนบัตรเข้าถึง ซึ่งมีข้อมูลเกี่ยวกับรหัสบัตร รหัสประตูหลายประตู สิทธิ์การเข้าถึง และเวลาหมดอายุ
+//
+//AccessControlSystem.java
+//คลาสนี้จัดการระบบควบคุมการเข้าถึง รวมถึงการสร้าง การแก้ไข และการยกเลิกบัตรเข้าถึง นอกจากนี้ยังตรวจสอบการเข้าถึงและบันทึกเหตุการณ์ต่างๆ
+//
+//AuditTrail.java
+//คลาสนี้บันทึกเหตุการณ์ต่างๆ ที่เกี่ยวข้องกับความพยายามในการเข้าถึงและการจัดการบัตร
+//
+//HotelUI.java
+//คลาสนี้ให้ส่วนติดต่อผู้ใช้สำหรับระบบการจัดการโรงแรม มันรวมฟังก์ชันการทำงานสำหรับทั้งโหมดผู้ใช้และผู้ดูแล รวมถึงการล็อกอิน ข้อมูลห้อง และฟีเจอร์ผู้ดูแลขั้นสูง
