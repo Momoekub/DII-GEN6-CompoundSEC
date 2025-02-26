@@ -3,7 +3,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HotelUI {
@@ -12,6 +14,7 @@ public class HotelUI {
     private LoginStrategy loginStrategy;
     private Map<Integer, String> registrationTimes = new HashMap<>();
     private Map<Integer, String> resetTimes = new HashMap<>();
+    private List<String> loginAttempts = new ArrayList<>(); // Track all login attempts
 
     public HotelUI(HotelControl hotelControl, AccessControlSystem accessControlSystem) {
         this.hotelControl = hotelControl;
@@ -25,7 +28,7 @@ public class HotelUI {
     public void startLoginScreen() {
         JFrame frame = new JFrame("Hotel Management System");
         frame.setSize(500, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure application exits on close
 
         String mode;
         while (true) {
@@ -55,7 +58,7 @@ public class HotelUI {
     public void startUserMode() {
         JFrame frame = new JFrame("User Mode - Hotel Management System");
         frame.setSize(500, 400);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure application exits on close
         CardLayout cardLayout = new CardLayout();
         JPanel cardPanel = new JPanel(cardLayout);
 
@@ -68,7 +71,7 @@ public class HotelUI {
     public void startAdminMode() {
         JFrame frame = new JFrame("Admin Mode - Hotel Management System");
         frame.setSize(500, 400);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure application exits on close
         CardLayout cardLayout = new CardLayout();
         JPanel cardPanel = new JPanel(cardLayout);
 
@@ -120,14 +123,18 @@ public class HotelUI {
             try {
                 int roomId = Integer.parseInt(roomIdField.getText());
                 String password = new String(passwordField.getPassword());
+                LocalDateTime now = LocalDateTime.now();
 
                 if (hotelControl.validateRoom(roomId, password)) {
                     JOptionPane.showMessageDialog(null, "User Login Successful. Welcome!");
+                    loginAttempts.add("Room " + roomId + " - Login Successful at " + now);
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid Room ID or Password. Please try again.");
+                    loginAttempts.add("Room " + roomId + " - Login Failed at " + now);
                 }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid Room ID.");
+                loginAttempts.add("Invalid Room ID entered at " + LocalDateTime.now());
             }
         });
 
@@ -235,7 +242,7 @@ public class HotelUI {
         JButton setPasswordButton = new JButton("Set Password");
         JButton showRoomInfoButton = new JButton("Show Room Info");
         JButton viewTimesButton = new JButton("View Times");
-        JButton advancedAdminButton = new JButton("Advanced Admin");
+        JButton viewLoginTimesButton = new JButton("View User Login Attempts"); // New button to view login attempts
         JButton backButton = new JButton("Back");
 
         adminDashboardPanel.add(hotelUserNameLabel);
@@ -247,7 +254,7 @@ public class HotelUI {
         adminDashboardPanel.add(setPasswordButton);
         adminDashboardPanel.add(showRoomInfoButton);
         adminDashboardPanel.add(viewTimesButton);
-        adminDashboardPanel.add(advancedAdminButton);
+        adminDashboardPanel.add(viewLoginTimesButton); // Add new button to panel
         adminDashboardPanel.add(backButton);
 
         cardPanel.add(adminDashboardPanel, "Admin Dashboard");
@@ -278,15 +285,7 @@ public class HotelUI {
 
         showRoomInfoButton.addActionListener(e -> showAdminRoomInfoDialog());
         viewTimesButton.addActionListener(e -> showTimesDialog());
-
-        advancedAdminButton.addActionListener(e -> {
-            String adminCode = JOptionPane.showInputDialog("Enter the admin code:");
-            if ("123".equals(adminCode)) {
-                showAdvancedAdminDialog();
-            } else {
-                JOptionPane.showMessageDialog(null, "Invalid admin code.");
-            }
-        });
+        viewLoginTimesButton.addActionListener(e -> showUserLoginAttemptsDialog()); // Add action listener for new button
 
         backButton.addActionListener(e -> {
             frame.dispose();
@@ -308,7 +307,7 @@ public class HotelUI {
                 if (room.isAvailable()) {
                     roomInfo.append("available.\n");
                 } else {
-                    roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
+                    roomInfo.append("occupied by ").append(room.getUserName()).append(". Password: ").append(room.getPassword()).append(".\n");
                 }
             }
         }
@@ -321,7 +320,7 @@ public class HotelUI {
                 if (room.isAvailable()) {
                     roomInfo.append("available.\n");
                 } else {
-                    roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
+                    roomInfo.append("occupied by ").append(room.getUserName()).append(". Password: ").append(room.getPassword()).append(".\n");
                 }
             }
         }
@@ -334,7 +333,7 @@ public class HotelUI {
                 if (room.isAvailable()) {
                     roomInfo.append("available.\n");
                 } else {
-                    roomInfo.append("occupied by ").append(room.getUserName()).append(".\n");
+                    roomInfo.append("occupied by ").append(room.getUserName()).append(". Password: ").append(room.getPassword()).append(".\n");
                 }
             }
         }
@@ -362,8 +361,14 @@ public class HotelUI {
         JOptionPane.showMessageDialog(null, timesInfo.toString(), "Times Information", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void showAdvancedAdminDialog() {
-        JOptionPane.showMessageDialog(null, "Welcome to the advanced admin level!", "Advanced Admin", JOptionPane.INFORMATION_MESSAGE);
-        // Here, you can add additional functionalities and dialogs for the advanced admin level
+    private void showUserLoginAttemptsDialog() {
+        StringBuilder loginAttemptsInfo = new StringBuilder();
+        loginAttemptsInfo.append("User Login Attempts\n");
+
+        for (String attempt : loginAttempts) {
+            loginAttemptsInfo.append(attempt).append("\n");
+        }
+
+        JOptionPane.showMessageDialog(null, loginAttemptsInfo.toString(), "User Login Attempts", JOptionPane.INFORMATION_MESSAGE);
     }
 }

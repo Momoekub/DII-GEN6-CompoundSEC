@@ -28,6 +28,6 @@ public class Hotel {
 
     public boolean validateRoom(int roomId, String password) {
         Room room = getRoom(roomId);
-        return room != null && !room.isAvailable() && password.equals(room.getUserName());
+        return room != null && !room.isAvailable() && password.equals(room.getPassword());
     }
 }

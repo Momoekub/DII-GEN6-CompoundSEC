@@ -1,4 +1,5 @@
 public class Admin extends AbstractUser {
+
     public Admin(Hotel hotel) {
         super(hotel);
     }
