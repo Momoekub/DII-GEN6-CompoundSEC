@@ -1,14 +1,12 @@
 public class Room {
     private int roomId;
     private boolean available;
-    private String password;
-    private String userName; // New field to store the user who booked the room
+    private String userName;
 
-    public Room(int roomId, boolean available, String password, String userName) {
+    public Room(int roomId) {
         this.roomId = roomId;
-        this.available = available;
-        this.password = password;
-        this.userName = userName;
+        this.available = true;
+        this.userName = null;
     }
 
     public int getRoomId() {
@@ -21,14 +19,6 @@ public class Room {
 
     public void setAvailable(boolean available) {
         this.available = available;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getUserName() {

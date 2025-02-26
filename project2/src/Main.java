@@ -2,9 +2,9 @@ public class Main {
     public static void main(String[] args) {
         Hotel hotel = new Hotel();
         HotelControl hotelControl = new HotelControl(hotel);
-        AccessControlSystem accessControlSystem = new AccessControlSystem(); // Create an instance of AccessControlSystem
+        AccessControlSystem accessControlSystem = new AccessControlSystem();
 
-        HotelUI hotelUI = new HotelUI(hotelControl, accessControlSystem); // Pass both HotelControl and AccessControlSystem
+        HotelUI hotelUI = new HotelUI(hotelControl, accessControlSystem);
         hotelUI.startLoginScreen();
     }
 }
