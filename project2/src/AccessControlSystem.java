@@ -17,28 +17,6 @@ public class AccessControlSystem {
         cards.put(cardID, card);
         auditTrail.logCardCreation(cardID, permissions, expiryTime);
     }
-
-    public void modifyCard(String cardID, List<String> newPermissions, LocalDateTime newExpiryTime) {
-        AccessCard card = cards.get(cardID);
-        if (card != null) {
-            card.setPermissions(newPermissions);
-            card.setExpiryTime(newExpiryTime);
-            auditTrail.logCardModification(cardID, newPermissions, newExpiryTime);
-        }
-    }
-
-    public void revokeCard(String cardID) {
-        cards.remove(cardID);
-        auditTrail.logCardRevocation(cardID);
-    }
-
-    public boolean checkAccess(String cardID, String location) {
-        AccessCard card = cards.get(cardID);
-        if (card != null && card.getPermissions().contains(location) && card.getExpiryTime().isAfter(LocalDateTime.now())) {
-            auditTrail.logAccessAttempt(cardID, location, true);
-            return true;
-        }
-        auditTrail.logAccessAttempt(cardID, location, false);
-        return false;
-    }
 }
+
+

@@ -1,3 +1,4 @@
+
 public interface LoginStrategy {
-    void login();
+    void login();  // เพิ่มพารามิเตอร์ JFrame
 }

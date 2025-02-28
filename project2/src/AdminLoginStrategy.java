@@ -1,3 +1,4 @@
+
 public class AdminLoginStrategy implements LoginStrategy {
     private HotelControl hotelControl;
     private HotelUI hotelUI;
@@ -8,7 +9,7 @@ public class AdminLoginStrategy implements LoginStrategy {
     }
 
     @Override
-    public void login() {
-        hotelUI.startAdminMode();
+    public void login() {  // เพิ่ม JFrame เป็นอาร์กิวเมนต์
+        hotelUI.startAdminMode();  // ส่ง frame ไปยัง startAdminMode
     }
 }

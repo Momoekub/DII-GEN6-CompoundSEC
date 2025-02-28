@@ -1,41 +1,39 @@
-    public class Room {
-        private int roomId;
-        private boolean available;
-        private String userName;
-        private String password;
+public class Room {
+    private int roomId;
+    private String password;
+    private String userName;
+    private boolean isAvailable;
 
-        public Room(int roomId) {
-            this.roomId = roomId;
-            this.available = true;
-            this.userName = null;
-            this.password = null;
-        }
-
-        public int getRoomId() {
-            return roomId;
-        }
-
-        public boolean isAvailable() {
-            return available;
-        }
-
-        public void setAvailable(boolean available) {
-            this.available = available;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
+    public Room(int roomId) {
+        this.roomId = roomId;
+        this.isAvailable = true;
     }
+
+    public int getRoomId() {
+        return roomId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
+    }
+}

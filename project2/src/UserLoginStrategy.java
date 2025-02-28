@@ -1,3 +1,4 @@
+import javax.swing.*;
 public class UserLoginStrategy implements LoginStrategy {
     private HotelControl hotelControl;
     private HotelUI hotelUI;
@@ -8,7 +9,7 @@ public class UserLoginStrategy implements LoginStrategy {
     }
 
     @Override
-    public void login() {
-        hotelUI.startUserMode();
+    public void login( ) {  // เพิ่ม JFrame เป็นพารามิเตอร์
+        hotelUI.startUserMode();  // ส่ง frame ไปยัง startUserMode
     }
 }
