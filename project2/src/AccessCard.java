@@ -38,4 +38,3 @@ public class AccessCard {
         this.expiryTime = expiryTime;
     }
 }
-

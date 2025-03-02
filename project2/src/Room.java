@@ -1,24 +1,34 @@
+import java.time.LocalDateTime;
+
 public class Room {
     private int roomId;
-    private String password;
+    private boolean available;
     private String userName;
-    private boolean isAvailable;
+    private String password;
+    private LocalDateTime passwordSetTime;
 
+    // Constructor that takes roomId as an argument
     public Room(int roomId) {
         this.roomId = roomId;
-        this.isAvailable = true;
+        this.available = true;
     }
+
+    // Getters and setters for all fields
 
     public int getRoomId() {
         return roomId;
     }
 
-    public String getPassword() {
-        return password;
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     public String getUserName() {
@@ -29,11 +39,19 @@ public class Room {
         this.userName = userName;
     }
 
-    public boolean isAvailable() {
-        return isAvailable;
+    public String getPassword() {
+        return password;
     }
 
-    public void setAvailable(boolean available) {
-        isAvailable = available;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public LocalDateTime getPasswordSetTime() {
+        return passwordSetTime;
+    }
+
+    public void setPasswordSetTime(LocalDateTime passwordSetTime) {
+        this.passwordSetTime = passwordSetTime;
     }
 }

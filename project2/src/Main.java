@@ -1,10 +1,11 @@
 public class Main {
     public static void main(String[] args) {
-        Hotel hotel = new Hotel();
-        HotelControl hotelControl = new HotelControl(hotel);
-        AccessControlSystem accessControlSystem = new AccessControlSystem();
+        LoggingFacade loggingFacade = new LoggingFacade();
+        Hotel hotel = new Hotel(loggingFacade);
+        HotelControl hotelControl = new HotelControl(hotel, loggingFacade);
+        AccessControlSystem accessControlSystem = new AccessControlSystem(loggingFacade);
 
-        HotelUI hotelUI = new HotelUI(hotelControl, accessControlSystem);
+        HotelUI hotelUI = new HotelUI(hotelControl, accessControlSystem, loggingFacade);
         hotelUI.startLoginScreen();
     }
 }

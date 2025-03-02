@@ -1,7 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,14 +9,16 @@ import java.util.Map;
 public class HotelUI {
     private HotelControl hotelControl;
     private AccessControlSystem accessControlSystem;
+    private LoggingFacade loggingFacade;
     private LoginStrategy loginStrategy;
     private Map<Integer, String> registrationTimes = new HashMap<>();
     private Map<Integer, String> resetTimes = new HashMap<>();
     private List<String> loginAttempts = new ArrayList<>(); // Track all login attempts
 
-    public HotelUI(HotelControl hotelControl, AccessControlSystem accessControlSystem) {
+    public HotelUI(HotelControl hotelControl, AccessControlSystem accessControlSystem, LoggingFacade loggingFacade) {
         this.hotelControl = hotelControl;
         this.accessControlSystem = accessControlSystem;
+        this.loggingFacade = loggingFacade;
     }
 
     public void setLoginStrategy(LoginStrategy loginStrategy) {
@@ -26,6 +26,7 @@ public class HotelUI {
     }
 
     public void startLoginScreen() {
+        loggingFacade.log("Starting login screen.");
         JFrame frame = new JFrame("Hotel Management System");
         frame.setSize(500, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure application exits on close
@@ -36,6 +37,7 @@ public class HotelUI {
 
             if (mode == null) {
                 JOptionPane.showMessageDialog(null, "Program exited.", "Goodbye", JOptionPane.INFORMATION_MESSAGE);
+                loggingFacade.log("Program exited by user.");
                 System.exit(0);
             }
 
@@ -56,6 +58,7 @@ public class HotelUI {
     }
 
     public void startUserMode() {
+        loggingFacade.log("Starting user mode.");
         JFrame frame = new JFrame("User Mode - Hotel Management System");
         frame.setSize(500, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure application exits on close
@@ -69,6 +72,7 @@ public class HotelUI {
     }
 
     public void startAdminMode() {
+        loggingFacade.log("Starting admin mode.");
         JFrame frame = new JFrame("Admin Mode - Hotel Management System");
         frame.setSize(500, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensure application exits on close
@@ -105,7 +109,7 @@ public class HotelUI {
 
         JLabel roomIdLabel = new JLabel("Room ID:");
         JTextField roomIdField = new JTextField(10);
-        JLabel passwordLabel = new JLabel("Password:");
+        JLabel passwordLabel = new JLabel("Encrypted Password:");
         JPasswordField passwordField = new JPasswordField(10);
         JButton loginButton = new JButton("Login");
         JButton backButton = new JButton("Back");
@@ -122,19 +126,22 @@ public class HotelUI {
         loginButton.addActionListener(e -> {
             try {
                 int roomId = Integer.parseInt(roomIdField.getText());
-                String password = new String(passwordField.getPassword());
+                String encryptedPassword = new String(passwordField.getPassword());
                 LocalDateTime now = LocalDateTime.now();
 
-                if (hotelControl.validateRoom(roomId, password)) {
+                if (hotelControl.validateRoom(roomId, encryptedPassword)) {
                     JOptionPane.showMessageDialog(null, "User Login Successful. Welcome!");
                     loginAttempts.add("Room " + roomId + " - Login Successful at " + now);
+                    loggingFacade.log("User login successful for room " + roomId);
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid Room ID or Password. Please try again.");
                     loginAttempts.add("Room " + roomId + " - Login Failed at " + now);
+                    loggingFacade.log("User login failed for room " + roomId);
                 }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid Room ID.");
                 loginAttempts.add("Invalid Room ID entered at " + LocalDateTime.now());
+                loggingFacade.log("Invalid Room ID entered.");
             }
         });
 
@@ -184,6 +191,7 @@ public class HotelUI {
             }
 
             JOptionPane.showMessageDialog(null, roomInfo.toString(), "Room Information", JOptionPane.INFORMATION_MESSAGE);
+            loggingFacade.log("Displayed room info for " + selectedFloor);
         }
     }
 
@@ -211,13 +219,15 @@ public class HotelUI {
             String adminId = adminIdField.getText();
             String adminPassword = new String(adminPasswordField.getPassword());
 
-            Admin admin = new Admin(hotelControl.getHotel());
+            Admin admin = new Admin(hotelControl.getHotel(), loggingFacade);
 
             if (admin.loginAsAdmin(adminId, adminPassword)) {
                 JOptionPane.showMessageDialog(null, "Admin Login Successful!");
+                loggingFacade.log("Admin login successful for ID: " + adminId);
                 showAdminDashboard(cardPanel, cardLayout, frame);
             } else {
                 JOptionPane.showMessageDialog(null, "Invalid Admin ID or Password. Please try again.");
+                loggingFacade.log("Admin login failed for ID: " + adminId);
             }
         });
 
@@ -271,12 +281,15 @@ public class HotelUI {
                     JOptionPane.showMessageDialog(null, "Room " + roomId + " has been reset to available.");
                 } else if (roomPassword.isEmpty() || userName.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Please enter both Room Password and Hotel User Name.");
-                } else if (hotelControl.setRoomPassword(roomId, roomPassword, userName)) {
-                    String registrationTime = LocalDateTime.now().toString();
-                    registrationTimes.put(roomId, registrationTime);
-                    JOptionPane.showMessageDialog(null, "Password for room " + roomId + " has been set successfully.");
                 } else {
-                    JOptionPane.showMessageDialog(null, "Room " + roomId + " not found.");
+                    String encryptedPassword = EncryptionUtil.encrypt(roomPassword);
+                    if (hotelControl.setRoomPassword(roomId, encryptedPassword, userName)) {
+                        String registrationTime = LocalDateTime.now().toString();
+                        registrationTimes.put(roomId, registrationTime);
+                        JOptionPane.showMessageDialog(null, "Password for room " + roomId + " has been set successfully.");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Room " + roomId + " not found.");
+                    }
                 }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid Room ID.");

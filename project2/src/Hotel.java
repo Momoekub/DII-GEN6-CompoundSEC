@@ -3,9 +3,11 @@ import java.util.Map;
 
 public class Hotel {
     private Map<Integer, Room> rooms;
+    private LoggingFacade loggingFacade;
 
-    public Hotel() {
-        rooms = new HashMap<>();
+    public Hotel(LoggingFacade loggingFacade) {
+        this.rooms = new HashMap<>();
+        this.loggingFacade = loggingFacade;
         // Initialize rooms (for simplicity, I'll add some rooms)
         for (int i = 101; i <= 110; i++) {
             rooms.put(i, new Room(i));
@@ -16,6 +18,7 @@ public class Hotel {
         for (int i = 301; i <= 310; i++) {
             rooms.put(i, new Room(i));
         }
+        loggingFacade.log("Hotel initialized with rooms.");
     }
 
     public Map<Integer, Room> getRooms() {
